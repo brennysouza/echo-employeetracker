@@ -72,6 +72,24 @@ function addDepartment() {
         message: 'Enter the name of the new department:',
       },
     ])
+    .then((answers) => {
+      // Insert the new department into the database
+      const insertQuery = 'INSERT INTO department (name) VALUES (?)';
+      const insertValues = [answers.departmentName];
+
+      db.query(insertQuery, insertValues)
+        .then(() => {
+          console.log(`Department '${answers.departmentName}' added successfully!`);
+          init(); 
+        })
+        .catch((error) => {
+          console.error('Error adding department:', error);
+          init();
+        });
+    })
+    .catch((error) => {
+
+    });
 }
 
 // function to update an employee's role
