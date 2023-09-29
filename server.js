@@ -1,38 +1,51 @@
 const inquirer = require('inquirer');
-const db = require('./db'); // Import your database connection
+// Import database connection
+const db = require('./db');
 
-// Your application logic here
-
-// Start the application
+// Initialize the application
 init();
 
 function init() {
-  // Use inquirer to prompt the user with options
+  // inquirer to prompt users with these questions
   inquirer
     .prompt([
-      // Define prompts for viewing, adding, and updating data
+      {
+        type: 'list',
+        name: 'action',
+        message: 'What would you like to do?',
+        choices: [
+          'View all departments',
+          'Add a department',
+          'Update an employee\'s role',
+          'Exit',
+        ],
+      },
     ])
     .then((answers) => {
-      // Handle user's choice and call appropriate functions
-    })
+      })
     .catch((error) => {
       console.error(error);
     });
 }
 
-// Create functions for each user action (viewing, adding, updating)
 
-// Example function to view all departments
+// function to view all departments
 function viewDepartments() {
   // Query the database and display the results in a formatted table
+  var query = "SELECT * FROM department";
+  connection.query(query, function(err, res) {
+    if (err) throw err;
+    console.table(res);
+    init();
+  });
 }
 
-// Example function to add a department
+// function to add a department
 function addDepartment() {
   // Prompt the user for department details and insert them into the database
 }
 
-// Example function to update an employee's role
+// function to update an employee's role
 function updateEmployeeRole() {
   // Prompt the user to select an employee and update their role
 }
