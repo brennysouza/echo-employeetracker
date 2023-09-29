@@ -87,7 +87,37 @@ function updateEmployeeRole() {
           value: employee.id,
         }));
         // Code to prompt the user to select an employee below
-        
+        inquirer
+        .prompt([
+          {
+            type: 'list',
+            name: 'employeeId',
+            message: 'Select an employee to update:',
+            choices: employeeChoices,
+          },
+        ])
+        .then((answers) => {
+          const newRoleId = 1; 
+          const updateQuery = 'UPDATE employee SET role_id = ? WHERE id = ?';
+          const updateValues = [newRoleId, answers.employeeId];
+
+          db.query(updateQuery, updateValues)
+          // Prompt user after updating the role
+            .then(() => {
+              console.log('Employee role updated successfully!');
+              init(); 
+            })
+            .catch((error) => {
+              // Prompt user if an error occurs
+              console.error('Error updating employee role:', error);
+              init(); 
+            });
+        });
+    })
+    .catch((error) => {
+      console.error('Error fetching employee list:', error);
+      init(); // Prompt the user again after an error
+    });
 }
 
 // Call functions based on user choices
