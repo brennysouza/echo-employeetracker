@@ -21,16 +21,6 @@ connection.connect((err) => {
   }
 });
 
-const query = 'SELECT * FROM department';
-
-connection.query(query, (err, results) => {
-  if (err) {
-    console.error('Error executing query:', err);
-  } else {
-    console.table(results);
-  }
-});
-
 // Initializes the application
 init();
 
@@ -64,7 +54,6 @@ function init() {
         case 'Exit':
           console.log('Goodbye!');
           process.exit(0);
-          break;
       }
       })
     .catch((error) => {
