@@ -77,6 +77,17 @@ function addDepartment() {
 // function to update an employee's role
 function updateEmployeeRole() {
   // Prompt the user to select an employee and update their role
+    // Fetch a list of employees so the user can choose from them
+    const employeeListQuery = 'SELECT id, first_name, last_name FROM employee';
+    db.query(employeeListQuery)
+      .then((employees) => {
+        // This code converts the list of employees into a format suitable for inquirer
+        const employeeChoices = employees.map((employee) => ({
+          name: `${employee.first_name} ${employee.last_name}`,
+          value: employee.id,
+        }));
+        // Code to prompt the user to select an employee below
+        
 }
 
 // Call functions based on user choices
