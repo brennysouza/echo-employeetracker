@@ -1,15 +1,15 @@
 const inquirer = require('inquirer');
-// Import database connection
-const db = require('db/schema.sql');
-
 // Code below connects to mysql database
 const mysql = require('mysql2');
+require('dotenv').config();
+
 
 const connection = mysql.createConnection({
   host: 'localhost',
-  user: 'your_username',
-  password: 'your_password',
-  database: 'company_db',
+  port: 3306,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 // Code logs any database connection errors
@@ -18,6 +18,16 @@ connection.connect((err) => {
     console.error('Error connecting to the database:', err);
   } else {
     console.log('Connected to the database');
+  }
+});
+
+const query = 'SELECT * FROM department';
+
+connection.query(query, (err, results) => {
+  if (err) {
+    console.error('Error executing query:', err);
+  } else {
+    console.table(results);
   }
 });
 
