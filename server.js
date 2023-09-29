@@ -1,8 +1,27 @@
 const inquirer = require('inquirer');
 // Import database connection
-const db = require('./db');
+const db = require('db/schema.sql');
 
-// Initialize the application
+// Code below connects to mysql database
+const mysql = require('mysql2');
+
+const connection = mysql.createConnection({
+  host: 'localhost',
+  user: 'your_username',
+  password: 'your_password',
+  database: 'company_db',
+});
+
+// Code logs any database connection errors
+connection.connect((err) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+  } else {
+    console.log('Connected to the database');
+  }
+});
+
+// Initializes the application
 init();
 
 function init() {
