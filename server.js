@@ -167,7 +167,7 @@ async function addEmployee() {
 
       console.log('First Name:', firstName);
       console.log('Last Name:', lastName);
-      
+
       // Insert the new employee into the database
       const insertQuery = 'INSERT INTO employee (first_name, last_name) VALUES (?, ?)';
       const insertValues = [firstName, lastName];
@@ -184,30 +184,80 @@ async function addEmployee() {
     });
 }
 
+// Define the function to fetch departments from the database
+async function fetchDepartmentsFromDatabase() {
+  try {
+    // Execute a query to fetch departments from your database
+    const [departments] = await connectionPool.query('SELECT * FROM department');
+    // Return the departments
+    return departments;
+  } catch (error) {
+    // Handle any errors that occur during the database query
+    throw error;
+  }
+}
+
 async function addRole() {
+  try {
+      // Implement fetchDepartmentsFromDatabase()
+  const departments = await fetchDepartmentsFromDatabase(); 
   // Code prompts user for role details and insert them into the database
-    inquirer
+   const answers = await inquirer
     .prompt([
       {
         type: 'input',
         name: 'roleName',
         message: 'Enter the name of the new role:',
       },
+      {
+        type: 'input',
+        name: 'roleSalary',
+        message: 'Enter the salary of the new role:',
+      },
+      {
+        type: 'list',
+        name: 'roleDepartment',
+        message: 'Select the department of the new role:',
+        // Uses the fetched departments in db to populate the choices
+        choices: [
+          ...departments.map(department => department.name),
+          new inquirer.Separator(),
+          'Add New Department',
+        ],
+        pageSize: 10, // Set the number of choices per page
+        loop: false, // Disable looping through the choices
+      },
     ])
-    .then(async (answers) => {
-      // Insert the new role into the database
-      const insertQuery = 'INSERT INTO role (name) VALUES (?)';
-      const insertValues = [answers.roleName];
-    
-      try {
-      await connectionPool.query(insertQuery, insertValues)
-          console.log(`Role '${answers.roleName}' added successfully!`);
-          init(); 
-        } catch (error) {
-          console.error('Error adding role:', error);
-          init();
-        }
-    });
+    const roleName = answers.roleName;
+    const roleSalary = parseFloat(answers.roleSalary);
+    const selectedDepartment = departments.find(
+      (department) => department.name === answers.roleDepartment
+    );
+
+    if (!selectedDepartment) {
+      throw new Error('Selected department not found.');
+    }
+
+    const roleDepartment = selectedDepartment.id; // Use the department's ID
+
+    // Insert the new role into the database
+    const insertQuery =
+      'INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)';
+    const insertValues = [roleName, roleSalary, roleDepartment];
+
+    await connectionPool.query(insertQuery, insertValues);
+    console.log(`Role '${roleName}' added successfully!`);
+    init();
+
+    if (answers.roleDepartment === 'Add New Department') {
+      await addDepartment(); // Add department logic (implement this function)
+      departments = await fetchDepartmentsFromDatabase();
+    }
+
+  } catch (error) {
+    console.error('Error adding role:', error);
+    init();
+  }
 }
 
 // function to update an employee's role
