@@ -65,7 +65,7 @@ function init() {
 function viewDepartments() {
   // Code queries the database and display the results in a formatted table
   const query = 'SELECT * FROM department';
-  db.query(query)
+  connection.query(query)
   // Prompt the user again after displaying the results
     .then((results) => {
       console.table(results);
@@ -94,7 +94,7 @@ function addDepartment() {
       const insertQuery = 'INSERT INTO department (name) VALUES (?)';
       const insertValues = [answers.departmentName];
 
-      db.query(insertQuery, insertValues)
+      connection.query(insertQuery, insertValues)
         .then(() => {
           console.log(`Department '${answers.departmentName}' added successfully!`);
           init(); 
@@ -114,7 +114,7 @@ function updateEmployeeRole() {
   // Prompt the user to select an employee and update their role
     // Fetch a list of employees so the user can choose from them
     const employeeListQuery = 'SELECT id, first_name, last_name FROM employee';
-    db.query(employeeListQuery)
+    connection.query(employeeListQuery)
       .then((employees) => {
         // This code converts the list of employees into a format suitable for inquirer
         const employeeChoices = employees.map((employee) => ({
@@ -136,7 +136,7 @@ function updateEmployeeRole() {
           const updateQuery = 'UPDATE employee SET role_id = ? WHERE id = ?';
           const updateValues = [newRoleId, answers.employeeId];
 
-          db.query(updateQuery, updateValues)
+          connection.query(updateQuery, updateValues)
           // Prompt user after updating the role
             .then(() => {
               console.log('Employee role updated successfully!');
