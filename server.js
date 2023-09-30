@@ -106,18 +106,16 @@ async function addDepartment() {
 }
 
 // function to update an employee's role
-function updateEmployeeRole() {
+async function updateEmployeeRole() {
   // Prompt the user to select an employee and update their role
     // Fetch a list of employees so the user can choose from them
     const employeeListQuery = 'SELECT id, first_name, last_name FROM employee';
+
    try {
 
-    const [employees] = await connection.query(employeeListQuery)
+    const [employees] = await connection.query(employeeListQuery);
     // This code converts the list of employees into a format suitable for inquirer
-    connection.query(employeeListQuery)
-      .then((employees) => {
-        // This code converts the list of employees into a format suitable for inquirer
-        const employeeChoices = employees.map((employee) => ({
+    const employeeChoices = employees.map((employee) => ({
           name: `${employee.first_name} ${employee.last_name}`,
           value: employee.id,
         }));
@@ -130,29 +128,25 @@ function updateEmployeeRole() {
             message: 'Select an employee to update:',
             choices: employeeChoices,
           },
-        ])
-        .then((answers) => {
+        ]);
+
           const newRoleId = 1; 
           const updateQuery = 'UPDATE employee SET role_id = ? WHERE id = ?';
           const updateValues = [newRoleId, answers.employeeId];
 
-          connection.query(updateQuery, updateValues)
+          await connection.query(updateQuery, updateValues);
           // Prompt user after updating the role
-            .then(() => {
               console.log('Employee role updated successfully!');
               init(); 
-            })
-            .catch((error) => {
+            } catch (error) {
               // Prompt user if an error occurs
               console.error('Error updating employee role:', error);
               init(); 
-            });
-        });
-    })
-    .catch((error) => {
-      console.error('Error fetching employee list:', error);
-      init(); // Prompt the user again after an error
-    });
-}
-
-
+            }
+        }
+    
+//     .catch((error) => {
+//       console.error('Error fetching employee list:', error);
+//       init(); // Prompt the user again after an error
+//     });
+// }
