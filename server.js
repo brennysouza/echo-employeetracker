@@ -152,18 +152,30 @@ async function addEmployee() {
     .prompt([
       {
         type: 'input',
-        name: 'employeeName',
-        message: 'Enter the name of the new employee:',
+        name: 'firstName',
+        message: 'Enter the first name of the new employee:',
+      },
+      {
+        type: 'input',
+        name: 'lastName',
+        message: 'Enter the last name of the new employee:',
       },
     ])
     .then(async (answers) => {
+      const firstName = answers.firstName; 
+      const lastName = answers.lastName;   
+
+      console.log('First Name:', firstName);
+      console.log('Last Name:', lastName);
+      
       // Insert the new employee into the database
-      const insertQuery = 'INSERT INTO employee (name) VALUES (?)';
-      const insertValues = [answers.employeeName];
+      const insertQuery = 'INSERT INTO employee (first_name, last_name) VALUES (?, ?)';
+      const insertValues = [firstName, lastName];
+      // const insertValues = [answers.employeeName];
     
       try {
       await connectionPool.query(insertQuery, insertValues)
-          console.log(`Employee '${answers.employeeName}' added successfully!`);
+          console.log(`Employee '${firstName} ${lastName}' added successfully!`);
           init(); 
         } catch (error) {
           console.error('Error adding employee:', error);
