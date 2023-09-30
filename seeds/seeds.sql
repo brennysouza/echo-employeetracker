@@ -14,7 +14,7 @@ INSERT INTO role (title, salary, department_id) VALUES
     ('Software Engineer', 120000.00, 3),
     ('Full-stack Developer', 80000.00, 3),
     ('Director of Operations', 140000.00, 4),
-    ('Program Manager', 75000.00, 4);
+    ('Operations Manager', 100000.00, 4);
 
 -- Insert employees
 INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES

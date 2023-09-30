@@ -45,6 +45,7 @@ function init() {
           'Update an employee\'s role',
           'Exit',
         ],
+        pageSize: 8,
       },
     ])
     .then((answers) => {
