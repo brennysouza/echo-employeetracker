@@ -1,6 +1,6 @@
 const inquirer = require('inquirer');
 // Code below connects to mysql database
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 
@@ -62,7 +62,7 @@ function init() {
 
 
 // function to view all departments
-function viewDepartments() {
+async function viewDepartments() {
   // Code queries the database and display the results in a formatted table
   const query = 'SELECT * FROM department';
   connection.query(query)
@@ -79,7 +79,7 @@ function viewDepartments() {
 }
 
 // function to add a department
-function addDepartment() {
+async function addDepartment() {
   // Code prompts user for department details and insert them into the database
     inquirer
     .prompt([
