@@ -41,6 +41,7 @@ function init() {
           'View all roles',
           'Add a department',
           'Add an employee',
+          'Add a role',
           'Update an employee\'s role',
           'Exit',
         ],
@@ -62,6 +63,9 @@ function init() {
           break;
         case 'Add an employee':
           addEmployee();
+          break;
+        case 'Add a role':
+          addRole();
           break;
         case 'Update an employee\'s role':
           updateEmployeeRole();
@@ -162,6 +166,32 @@ async function addEmployee() {
           init(); 
         } catch (error) {
           console.error('Error adding employee:', error);
+          init();
+        }
+    });
+}
+
+async function addRole() {
+  // Code prompts user for role details and insert them into the database
+    inquirer
+    .prompt([
+      {
+        type: 'input',
+        name: 'roleName',
+        message: 'Enter the name of the new role:',
+      },
+    ])
+    .then(async (answers) => {
+      // Insert the new role into the database
+      const insertQuery = 'INSERT INTO role (name) VALUES (?)';
+      const insertValues = [answers.roleName];
+    
+      try {
+      await connectionPool.query(insertQuery, insertValues)
+          console.log(`Role '${answers.roleName}' added successfully!`);
+          init(); 
+        } catch (error) {
+          console.error('Error adding role:', error);
           init();
         }
     });
