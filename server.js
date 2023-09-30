@@ -37,6 +37,7 @@ function init() {
         message: 'What would you like to do?',
         choices: [
           'View all departments',
+          'View all employees',
           'Add a department',
           'Update an employee\'s role',
           'Exit',
@@ -47,6 +48,9 @@ function init() {
       switch (answers.action) {
         case 'View all departments':
           viewDepartments();
+          break;
+        case 'View all employees':
+          viewEmployees();
           break;
         case 'Add a department':
           addDepartment();
@@ -80,6 +84,16 @@ async function viewDepartments() {
     }
   }
 
+  async function viewEmployees() {
+    try {
+      const [employees] = await connectionPool.query('SELECT * FROM employee');
+      console.table(employees);
+      init();
+    } catch (error) {
+      console.error('Error viewing employees:', error);
+      init();
+    }
+  }
 
 // function to add a department
 async function addDepartment() {
