@@ -4,21 +4,25 @@ const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 
-const connection = mysql.createConnection({
+// Create a connection pool using the promise-based API
+const connectionPool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10, // Adjust this based on your needs
+  queueLimit: 0,
 });
 
-// Code logs any database connection errors
-connection.connect((err) => {
-  if (err) {
-    console.error('Error connecting to the database:', err);
-  } else {
-    console.log('Connected to the database');
-  }
-});
+// // Code logs any database connection errors
+// connection.connect((err) => {
+//   if (err) {
+//     console.error('Error connecting to the database:', err);
+//   } else {
+//     console.log('Connected to the database');
+//   }
+// });
 
 // Initializes the application
 init();
@@ -65,7 +69,7 @@ function init() {
 async function viewDepartments() {
   // Code queries the database and display the results in a formatted table
   try {
-  const [results] = await connection.query('SELECT * FROM department');
+  const [results] = await connectionPool.query('SELECT * FROM department');
   connection.table(results);
       console.table(results);
       init(); 
@@ -95,7 +99,7 @@ async function addDepartment() {
       const insertValues = [answers.departmentName];
     
       try {
-      await connection.query(insertQuery, insertValues)
+      await connectionPool.query(insertQuery, insertValues)
           console.log(`Department '${answers.departmentName}' added successfully!`);
           init(); 
         } catch (error) {
@@ -113,7 +117,7 @@ async function updateEmployeeRole() {
 
    try {
 
-    const [employees] = await connection.query(employeeListQuery);
+    const [employees] = await connectionPool.query(employeeListQuery);
     // This code converts the list of employees into a format suitable for inquirer
     const employeeChoices = employees.map((employee) => ({
           name: `${employee.first_name} ${employee.last_name}`,
@@ -134,7 +138,7 @@ async function updateEmployeeRole() {
           const updateQuery = 'UPDATE employee SET role_id = ? WHERE id = ?';
           const updateValues = [newRoleId, answers.employeeId];
 
-          await connection.query(updateQuery, updateValues);
+          await connectionPool.query(updateQuery, updateValues);
           // Prompt user after updating the role
               console.log('Employee role updated successfully!');
               init(); 
