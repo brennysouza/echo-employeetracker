@@ -38,6 +38,7 @@ function init() {
         choices: [
           'View all departments',
           'View all employees',
+          'View all roles',
           'Add a department',
           'Update an employee\'s role',
           'Exit',
@@ -51,6 +52,9 @@ function init() {
           break;
         case 'View all employees':
           viewEmployees();
+          break;
+        case 'View all roles':
+          viewRoles();
           break;
         case 'Add a department':
           addDepartment();
@@ -91,6 +95,17 @@ async function viewDepartments() {
       init();
     } catch (error) {
       console.error('Error viewing employees:', error);
+      init();
+    }
+  }
+
+  async function viewRoles() {
+    try {
+      const [roles] = await connectionPool.query('SELECT * FROM role');
+      console.table(roles);
+      init();
+    } catch (error) {
+      console.error('Error viewing roles:', error);
       init();
     }
   }
