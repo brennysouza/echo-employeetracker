@@ -40,6 +40,7 @@ function init() {
           'View all employees',
           'View all roles',
           'Add a department',
+          'Add an employee',
           'Update an employee\'s role',
           'Exit',
         ],
@@ -58,6 +59,9 @@ function init() {
           break;
         case 'Add a department':
           addDepartment();
+          break;
+        case 'Add an employee':
+          addEmployee();
           break;
         case 'Update an employee\'s role':
           updateEmployeeRole();
@@ -132,6 +136,32 @@ async function addDepartment() {
           init(); 
         } catch (error) {
           console.error('Error adding department:', error);
+          init();
+        }
+    });
+}
+
+async function addEmployee() {
+  // Code prompts user for employee details and insert them into the database
+    inquirer
+    .prompt([
+      {
+        type: 'input',
+        name: 'employeeName',
+        message: 'Enter the name of the new employee:',
+      },
+    ])
+    .then(async (answers) => {
+      // Insert the new employee into the database
+      const insertQuery = 'INSERT INTO employee (name) VALUES (?)';
+      const insertValues = [answers.employeeName];
+    
+      try {
+      await connectionPool.query(insertQuery, insertValues)
+          console.log(`Employee '${answers.employeeName}' added successfully!`);
+          init(); 
+        } catch (error) {
+          console.error('Error adding employee:', error);
           init();
         }
     });
