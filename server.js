@@ -64,19 +64,19 @@ function init() {
 // function to view all departments
 async function viewDepartments() {
   // Code queries the database and display the results in a formatted table
-  const query = 'SELECT * FROM department';
-  connection.query(query)
-  // Prompt the user again after displaying the results
-    .then((results) => {
+  try {
+  const [results] = await connection.query('SELECT * FROM department');
+  connection.table(results);
       console.table(results);
       init(); 
-    })
+  }
     // Prompt the user again after an error
-    .catch((error) => {
+    catch (error) {
       console.error('Error viewing departments:', error);
       init(); 
-    });
-}
+    }
+  }
+
 
 // function to add a department
 async function addDepartment() {
@@ -89,23 +89,19 @@ async function addDepartment() {
         message: 'Enter the name of the new department:',
       },
     ])
-    .then((answers) => {
+    .then(async (answers) => {
       // Insert the new department into the database
       const insertQuery = 'INSERT INTO department (name) VALUES (?)';
       const insertValues = [answers.departmentName];
-
-      connection.query(insertQuery, insertValues)
-        .then(() => {
+    
+      try {
+      await connection.query(insertQuery, insertValues)
           console.log(`Department '${answers.departmentName}' added successfully!`);
           init(); 
-        })
-        .catch((error) => {
+        } catch (error) {
           console.error('Error adding department:', error);
           init();
-        });
-    })
-    .catch((error) => {
-
+        }
     });
 }
 
@@ -114,6 +110,10 @@ function updateEmployeeRole() {
   // Prompt the user to select an employee and update their role
     // Fetch a list of employees so the user can choose from them
     const employeeListQuery = 'SELECT id, first_name, last_name FROM employee';
+   try {
+
+    const [employees] = await connection.query(employeeListQuery)
+    // This code converts the list of employees into a format suitable for inquirer
     connection.query(employeeListQuery)
       .then((employees) => {
         // This code converts the list of employees into a format suitable for inquirer
@@ -122,8 +122,8 @@ function updateEmployeeRole() {
           value: employee.id,
         }));
         // Code to prompt the user to select an employee below
-        inquirer
-        .prompt([
+        
+        const answers = await inquirer.prompt([
           {
             type: 'list',
             name: 'employeeId',
