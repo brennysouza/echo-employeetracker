@@ -70,7 +70,6 @@ async function viewDepartments() {
   // Code queries the database and display the results in a formatted table
   try {
   const [results] = await connectionPool.query('SELECT * FROM department');
-  connection.table(results);
       console.table(results);
       init(); 
   }
