@@ -99,7 +99,21 @@ async function viewDepartments() {
 
   async function viewEmployees() {
     try {
-      const [employees] = await connectionPool.query('SELECT * FROM employee');
+      const query = `
+        SELECT
+          employee.id,
+          employee.first_name,
+          employee.last_name,
+          role.title AS job_title,
+          role.salary,
+          department.name AS department,
+          CONCAT(manager.first_name, ' ', manager.last_name) AS manager
+        FROM employee
+        LEFT JOIN role ON employee.role_id = role.id
+        LEFT JOIN department ON role.department_id = department.id
+        LEFT JOIN employee AS manager ON employee.manager_id = manager.id
+      `;
+      const [employees] = await connectionPool.query(query);
       console.table(employees);
       init();
     } catch (error) {
@@ -107,6 +121,7 @@ async function viewDepartments() {
       init();
     }
   }
+  
 
   async function viewRoles() {
     try {
