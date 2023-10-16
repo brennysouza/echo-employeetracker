@@ -168,9 +168,22 @@ async function addDepartment() {
 }
 
 async function addEmployee() {
-  // Code prompts user for employee details and insert them into the database
-    inquirer
-    .prompt([
+  try {
+    // Fetch a list of roles and employees so the user can choose from them
+    const [roles] = await connectionPool.query('SELECT id, title FROM role');
+    const [employees] = await connectionPool.query('SELECT id, first_name, last_name FROM employee');
+
+    const roleChoices = roles.map((role) => ({
+      name: role.title,
+      value: role.id,
+    }));
+
+    const managerChoices = employees.map((employee) => ({
+      name: `${employee.first_name} ${employee.last_name}`,
+      value: employee.id,
+    }));
+
+    const answers = await inquirer.prompt([
       {
         type: 'input',
         name: 'firstName',
@@ -181,29 +194,36 @@ async function addEmployee() {
         name: 'lastName',
         message: 'Enter the last name of the new employee:',
       },
-    ])
-    .then(async (answers) => {
-      const firstName = answers.firstName; 
-      const lastName = answers.lastName;   
+      {
+        type: 'list',
+        name: 'roleId',
+        message: 'Select the role for the new employee:',
+        choices: roleChoices,
+      },
+      {
+        type: 'list',
+        name: 'managerId',
+        message: "Select the employee's manager:",
+        choices: [...managerChoices, { name: 'None', value: null }],
+      },
+    ]);
 
-      console.log('First Name:', firstName);
-      console.log('Last Name:', lastName);
+    const { firstName, lastName, roleId, managerId } = answers;
 
-      // Insert the new employee into the database
-      const insertQuery = 'INSERT INTO employee (first_name, last_name) VALUES (?, ?)';
-      const insertValues = [firstName, lastName];
-      // const insertValues = [answers.employeeName];
-    
-      try {
-      await connectionPool.query(insertQuery, insertValues)
-          console.log(`Employee '${firstName} ${lastName}' added successfully!`);
-          init(); 
-        } catch (error) {
-          console.error('Error adding employee:', error);
-          init();
-        }
-    });
+    // Insert the new employee into the database
+    const insertQuery = 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)';
+    const insertValues = [firstName, lastName, roleId, managerId];
+
+    await connectionPool.query(insertQuery, insertValues);
+
+    console.log(`Employee '${firstName} ${lastName}' added successfully!`);
+    init();
+  } catch (error) {
+    console.error('Error adding employee:', error);
+    init();
+  }
 }
+
 
 // Define the function to fetch departments from the database
 async function fetchDepartmentsFromDatabase() {
@@ -281,48 +301,50 @@ async function addRole() {
   }
 }
 
-// function to update an employee's role
 async function updateEmployeeRole() {
-  // Prompt the user to select an employee and update their role
-    // Fetch a list of employees so the user can choose from them
-    const employeeListQuery = 'SELECT id, first_name, last_name FROM employee';
+  try {
+    // Fetch a list of employees, roles, and departments so the user can choose from them
+    const [employees] = await connectionPool.query('SELECT e.id, e.first_name, e.last_name, r.id AS role_id, r.title AS role_title, d.id AS department_id, d.name AS department_name FROM employee e LEFT JOIN role r ON e.role_id = r.id LEFT JOIN department d ON r.department_id = d.id');
 
-   try {
-
-    const [employees] = await connectionPool.query(employeeListQuery);
-    // This code converts the list of employees into a format suitable for inquirer
     const employeeChoices = employees.map((employee) => ({
-          name: `${employee.first_name} ${employee.last_name}`,
-          value: employee.id,
-        }));
-        // Code to prompt the user to select an employee below
-        
-        const answers = await inquirer.prompt([
-          {
-            type: 'list',
-            name: 'employeeId',
-            message: 'Select an employee to update:',
-            choices: employeeChoices,
-          },
-        ]);
+      name: `${employee.first_name} ${employee.last_name}`,
+      value: employee,
+    }));
 
-          const newRoleId = 1; 
-          const updateQuery = 'UPDATE employee SET role_id = ? WHERE id = ?';
-          const updateValues = [newRoleId, answers.employeeId];
+    // Fetch a list of roles from the database
+    const [roles] = await connectionPool.query('SELECT id, title FROM role');
+    const roleChoices = roles.map((role) => ({
+      name: role.title,
+      value: role.id,
+    }));
 
-          await connectionPool.query(updateQuery, updateValues);
-          // Prompt user after updating the role
-              console.log('Employee role updated successfully!');
-              init(); 
-            } catch (error) {
-              // Prompt user if an error occurs
-              console.error('Error updating employee role:', error);
-              init(); 
-            }
-        }
-    
-//     .catch((error) => {
-//       console.error('Error fetching employee list:', error);
-//       init(); // Prompt the user again after an error
-//     });
-// }
+    const answers = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'employee',
+        message: 'Choose an employee to update:',
+        choices: employeeChoices,
+      },
+      {
+        type: 'list',
+        name: 'role_id',
+        message: 'Select the employee\'s new role:',
+        choices: roleChoices,
+      },
+    ]);
+
+    const { employee, role_id } = answers;
+
+    // Update the employee's role in the database
+    const updateQuery = 'UPDATE employee SET role_id = ? WHERE id = ?';
+    const updateValues = [role_id, employee.id];
+
+    await connectionPool.query(updateQuery, updateValues);
+
+    console.log('Employee role updated successfully!');
+    init();
+  } catch (error) {
+    console.error('Error updating employee role:', error);
+    init();
+  }
+}
