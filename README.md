@@ -9,7 +9,7 @@ This is a back end application that users must access through the terminal using
 ## Usage
 The following is a video that demonstrates the functionality of the SVG logo maker and all tests passing. 
 
-[Application Video Walkthrough]()
+[Application Video Walkthrough](https://drive.google.com/file/d/1ancGTkmk-pnTs9QwuItv7YwKJvRExseP/view)
 
 Link to repo: https://github.com/brennysouza/echo-employeetracker
 
