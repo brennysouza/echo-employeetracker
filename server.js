@@ -1,28 +1,20 @@
+//  imports necessary dependencies
 const inquirer = require('inquirer');
 // Code below connects to mysql database
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 
-// Create a connection pool using the promise-based API
+// This code creates a connection pool to the MySQL database using the provided environment variables. This will help manage and reuse database connections efficiently.
 const connectionPool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   waitForConnections: true,
-  connectionLimit: 10, // Adjust this based on your needs
+  connectionLimit: 10,
   queueLimit: 0,
 });
-
-// // Code logs any database connection errors
-// connection.connect((err) => {
-//   if (err) {
-//     console.error('Error connecting to the database:', err);
-//   } else {
-//     console.log('Connected to the database');
-//   }
-// });
 
 // Initializes the application
 init();
@@ -75,31 +67,32 @@ function init() {
           console.log('Goodbye!');
           process.exit(0);
       }
-      })
+    })
     .catch((error) => {
       console.error(error);
     });
 }
 
 
-// function to view all departments
+// function queries the database for all departments and displays the results as a table in the terminal
 async function viewDepartments() {
   // Code queries the database and display the results in a formatted table
   try {
-  const [results] = await connectionPool.query('SELECT * FROM department');
-      console.table(results);
-      init(); 
+    const [results] = await connectionPool.query('SELECT * FROM department');
+    console.table(results);
+    init();
   }
-    // Prompt the user again after an error
-    catch (error) {
-      console.error('Error viewing departments:', error);
-      init(); 
-    }
+  // Prompt the user again after an error
+  catch (error) {
+    console.error('Error viewing departments:', error);
+    init();
   }
+}
 
-  async function viewEmployees() {
-    try {
-      const query = `
+// function queries the database for all employees and displays the results as a table in the terminal
+async function viewEmployees() {
+  try {
+    const query = `
         SELECT
           employee.id,
           employee.first_name,
@@ -113,37 +106,37 @@ async function viewDepartments() {
         LEFT JOIN department ON role.department_id = department.id
         LEFT JOIN employee AS manager ON employee.manager_id = manager.id
       `;
-      const [employees] = await connectionPool.query(query);
-      console.table(employees);
-      init();
-    } catch (error) {
-      console.error('Error viewing employees:', error);
-      init();
-    }
+    const [employees] = await connectionPool.query(query);
+    console.table(employees);
+    init();
+  } catch (error) {
+    console.error('Error viewing employees:', error);
+    init();
   }
-  
+}
 
-  async function viewRoles() {
-    try {
-      const query = `
+// function queries the database for all roles and displays the results as a table in the terminal
+async function viewRoles() {
+  try {
+    const query = `
         SELECT role.id, role.title, role.salary, department.name AS department
         FROM role
         LEFT JOIN department ON role.department_id = department.id
       `;
-      const [roles] = await connectionPool.query(query);
-      console.table(roles);
-      init();
-    } catch (error) {
-      console.error('Error viewing roles:', error);
-      init();
-    }
+    const [roles] = await connectionPool.query(query);
+    console.table(roles);
+    init();
+  } catch (error) {
+    console.error('Error viewing roles:', error);
+    init();
   }
-  
+}
 
-// function to add a department
+
+// function to add a department to the database 
 async function addDepartment() {
   // Code prompts user for department details and insert them into the database
-    inquirer
+  inquirer
     .prompt([
       {
         type: 'input',
@@ -155,18 +148,19 @@ async function addDepartment() {
       // Insert the new department into the database
       const insertQuery = 'INSERT INTO department (name) VALUES (?)';
       const insertValues = [answers.departmentName];
-    
+
       try {
-      await connectionPool.query(insertQuery, insertValues)
-          console.log(`Department '${answers.departmentName}' added successfully!`);
-          init(); 
-        } catch (error) {
-          console.error('Error adding department:', error);
-          init();
-        }
+        await connectionPool.query(insertQuery, insertValues)
+        console.log(`Department '${answers.departmentName}' added successfully!`);
+        init();
+      } catch (error) {
+        console.error('Error adding department:', error);
+        init();
+      }
     });
 }
 
+// function allows the user to add a new employee. It fetches lists of roles and employees to provide choices for role and manager selection. It then prompts the user to enter the first name, last name, role, and manager for the new employee and inserts this information into the database. 
 async function addEmployee() {
   try {
     // Fetch a list of roles and employees so the user can choose from them
@@ -238,37 +232,38 @@ async function fetchDepartmentsFromDatabase() {
   }
 }
 
+// function adds new role in the database 
 async function addRole() {
   try {
-      // Implement fetchDepartmentsFromDatabase()
-  const departments = await fetchDepartmentsFromDatabase(); 
-  // Code prompts user for role details and insert them into the database
-   const answers = await inquirer
-    .prompt([
-      {
-        type: 'input',
-        name: 'roleName',
-        message: 'Enter the name of the new role:',
-      },
-      {
-        type: 'input',
-        name: 'roleSalary',
-        message: 'Enter the salary of the new role:',
-      },
-      {
-        type: 'list',
-        name: 'roleDepartment',
-        message: 'Select the department of the new role:',
-        // Uses the fetched departments in db to populate the choices
-        choices: [
-          ...departments.map(department => department.name),
-          new inquirer.Separator(),
-          'Add New Department',
-        ],
-        pageSize: 10, // Set the number of choices per page
-        loop: false, // Disable looping through the choices
-      },
-    ])
+    // Implement fetchDepartmentsFromDatabase()
+    const departments = await fetchDepartmentsFromDatabase();
+    // Code prompts user for role details and insert them into the database
+    const answers = await inquirer
+      .prompt([
+        {
+          type: 'input',
+          name: 'roleName',
+          message: 'Enter the name of the new role:',
+        },
+        {
+          type: 'input',
+          name: 'roleSalary',
+          message: 'Enter the salary of the new role:',
+        },
+        {
+          type: 'list',
+          name: 'roleDepartment',
+          message: 'Select the department of the new role:',
+          // Uses the fetched departments in db to populate the choices
+          choices: [
+            ...departments.map(department => department.name),
+            new inquirer.Separator(),
+            'Add New Department',
+          ],
+          pageSize: 10, // Set the number of choices per page
+          loop: false, // Disable looping through the choices
+        },
+      ])
     const roleName = answers.roleName;
     const roleSalary = parseFloat(answers.roleSalary);
     const selectedDepartment = departments.find(
@@ -301,6 +296,7 @@ async function addRole() {
   }
 }
 
+// Function allows the user to update an employee's role. It fetches lists of employees, roles, and departments for user selection. It prompts the user to choose an employee and their new role, and then updates the employee's role in the database.
 async function updateEmployeeRole() {
   try {
     // Fetch a list of employees, roles, and departments so the user can choose from them
